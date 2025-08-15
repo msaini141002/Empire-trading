@@ -1,0 +1,817 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire Trading - Wholesale Products | Body Grooming, Household & Daily Use Items</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .cart-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .category-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transition: all 0.3s ease;
+        }
+        .category-card:hover {
+            transform: scale(1.05);
+        }
+        .admin-panel {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .payment-option {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .payment-option.selected {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">ET</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Empire Trading</h1>
+                        <p class="text-sm text-gray-600">Wholesale Products Supplier</p>
+                    </div>
+                </div>
+                
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#home" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="#categories" class="text-gray-700 hover:text-blue-600 font-medium">Categories</a>
+                    <a href="#products" class="text-gray-700 hover:text-blue-600 font-medium">Products</a>
+                    <a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                    <button onclick="toggleAdminPanel()" class="text-gray-700 hover:text-blue-600 font-medium">Admin</button>
+                </nav>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search products..." 
+                               class="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                    <button onclick="toggleCart()" class="relative bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs cart-badge">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-5xl font-bold mb-6">Welcome to Empire Trading</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Your trusted wholesale supplier for body grooming products, household utensils, and daily use items. Quality products at competitive prices.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="scrollToSection('categories')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    Browse Categories
+                </button>
+                <button onclick="scrollToSection('products')" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
+                    View Products
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Product Categories</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="category-card rounded-xl p-8 text-white text-center cursor-pointer" onclick="filterProducts('body-grooming')">
+                    <i class="fas fa-cut text-5xl mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Body Grooming</h3>
+                    <p>Razors, trimmers, grooming kits and accessories</p>
+                </div>
+                <div class="category-card rounded-xl p-8 text-white text-center cursor-pointer" onclick="filterProducts('household')">
+                    <i class="fas fa-home text-5xl mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Household Utensils</h3>
+                    <p>Kitchen tools, cookware, and home essentials</p>
+                </div>
+                <div class="category-card rounded-xl p-8 text-white text-center cursor-pointer" onclick="filterProducts('daily-use')">
+                    <i class="fas fa-shopping-basket text-5xl mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Daily Use Products</h3>
+                    <p>Personal care, cleaning supplies, and everyday items</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Our Products</h2>
+                <div class="flex space-x-4">
+                    <button onclick="filterProducts('all')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">All</button>
+                    <button onclick="filterProducts('body-grooming')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Body Grooming</button>
+                    <button onclick="filterProducts('household')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Household</button>
+                    <button onclick="filterProducts('daily-use')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Daily Use</button>
+                </div>
+            </div>
+            <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Products will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Contact Us</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-bold mb-4">Get in Touch</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-blue-600 mr-3"></i>
+                                <span>+91 98765 43210</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-blue-600 mr-3"></i>
+                                <span>info@empiretrading.com</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt text-blue-600 mr-3"></i>
+                                <span>123 Business District, Mumbai, India</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-bold mb-4">Business Hours</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span>Monday - Friday:</span>
+                                <span>9:00 AM - 6:00 PM</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Saturday:</span>
+                                <span>9:00 AM - 4:00 PM</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Sunday:</span>
+                                <span>Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Admin Panel - Add Product</h3>
+                <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="addProductForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Product Name</label>
+                    <input type="text" id="productName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <select id="productCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="body-grooming">Body Grooming</option>
+                        <option value="household">Household Utensils</option>
+                        <option value="daily-use">Daily Use Products</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Price (₹)</label>
+                        <input type="number" id="productPrice" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Stock Quantity</label>
+                        <input type="number" id="productStock" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <textarea id="productDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                    Add Product
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Shopping Cart</h3>
+                <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="cartItems" class="space-y-4 mb-6">
+                <!-- Cart items will be displayed here -->
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex justify-between text-xl font-bold mb-4">
+                    <span>Total: ₹<span id="cartTotal">0</span></span>
+                </div>
+                <button onclick="proceedToCheckout()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="bg-white rounded-xl p-8 max-w-3xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Checkout</h3>
+                <button onclick="closeCheckout()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Shipping Information</h4>
+                    <form id="checkoutForm" class="space-y-4">
+                        <input type="text" placeholder="Full Name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        <input type="tel" placeholder="Phone Number" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        <input type="email" placeholder="Email Address" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        <textarea placeholder="Full Address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required></textarea>
+                    </form>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Payment Options</h4>
+                    <div class="space-y-3">
+                        <div class="payment-option p-4 border rounded-lg cursor-pointer" onclick="selectPayment('cod')">
+                            <div class="flex items-center">
+                                <i class="fas fa-money-bill-wave text-green-600 mr-3"></i>
+                                <div>
+                                    <span class="font-medium">Cash on Delivery (COD)</span>
+                                    <p class="text-sm text-gray-600">Pay when you receive the order</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-option p-4 border rounded-lg cursor-pointer" onclick="selectPayment('upi')">
+                            <div class="flex items-center">
+                                <i class="fas fa-mobile-alt text-blue-600 mr-3"></i>
+                                <div>
+                                    <span class="font-medium">UPI Payment</span>
+                                    <p class="text-sm text-gray-600">Pay using UPI apps</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-option p-4 border rounded-lg cursor-pointer" onclick="selectPayment('card')">
+                            <div class="flex items-center">
+                                <i class="fas fa-credit-card text-purple-600 mr-3"></i>
+                                <div>
+                                    <span class="font-medium">Credit/Debit Card</span>
+                                    <p class="text-sm text-gray-600">Secure card payment</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-option p-4 border rounded-lg cursor-pointer" onclick="selectPayment('netbanking')">
+                            <div class="flex items-center">
+                                <i class="fas fa-university text-red-600 mr-3"></i>
+                                <div>
+                                    <span class="font-medium">Net Banking</span>
+                                    <p class="text-sm text-gray-600">Online banking payment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="flex justify-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>₹<span id="checkoutSubtotal">0</span></span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span>Shipping:</span>
+                            <span>₹50</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Total:</span>
+                            <span>₹<span id="checkoutTotal">0</span></span>
+                        </div>
+                    </div>
+                    <button onclick="placeOrder()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold mt-4">
+                        Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification bg-green-500 text-white p-4 rounded-lg shadow-lg">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="notificationText">Product added to cart!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold">ET</span>
+                        </div>
+                        <span class="text-xl font-bold">Empire Trading</span>
+                    </div>
+                    <p class="text-gray-400">Your trusted wholesale supplier for quality products at competitive prices.</p>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Quick Links</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#home" class="hover:text-white">Home</a></li>
+                        <li><a href="#categories" class="hover:text-white">Categories</a></li>
+                        <li><a href="#products" class="hover:text-white">Products</a></li>
+                        <li><a href="#contact" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Categories</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Body Grooming</a></li>
+                        <li><a href="#" class="hover:text-white">Household Utensils</a></li>
+                        <li><a href="#" class="hover:text-white">Daily Use Products</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Contact Info</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-phone mr-2"></i>+91 98765 43210</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@empiretrading.com</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>Mumbai, India</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2024 Empire Trading. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let products = [
+            {
+                id: 1,
+                name: "Professional Hair Trimmer Set",
+                category: "body-grooming",
+                price: 1250,
+                stock: 50,
+                description: "High-quality professional hair trimmer with multiple attachments for precise grooming"
+            },
+            {
+                id: 2,
+                name: "Premium Razor Blade Pack",
+                category: "body-grooming",
+                price: 450,
+                stock: 100,
+                description: "Pack of 10 premium quality razor blades for smooth and comfortable shaving"
+            },
+            {
+                id: 3,
+                name: "Stainless Steel Cookware Set",
+                category: "household",
+                price: 2800,
+                stock: 25,
+                description: "Complete 12-piece stainless steel cookware set for modern kitchens"
+            },
+            {
+                id: 4,
+                name: "Kitchen Utensil Organizer",
+                category: "household",
+                price: 850,
+                stock: 40,
+                description: "Bamboo kitchen utensil organizer with multiple compartments"
+            },
+            {
+                id: 5,
+                name: "Multi-Purpose Cleaning Kit",
+                category: "daily-use",
+                price: 650,
+                stock: 75,
+                description: "Complete cleaning kit with microfiber cloths, spray bottles, and cleaning solutions"
+            },
+            {
+                id: 6,
+                name: "Personal Care Travel Set",
+                category: "daily-use",
+                price: 550,
+                stock: 60,
+                description: "Compact travel-sized personal care essentials for on-the-go use"
+            }
+        ];
+
+        let cart = [];
+        let currentFilter = 'all';
+        let selectedPayment = '';
+
+        // Initialize the website
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchProducts(e.target.value);
+            });
+
+            // Admin form submission
+            document.getElementById('addProductForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addProduct();
+            });
+        }
+
+        function loadProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            const filteredProducts = currentFilter === 'all' 
+                ? products 
+                : products.filter(product => product.category === currentFilter);
+
+            filteredProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                grid.appendChild(productCard);
+            });
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card bg-white rounded-xl shadow-lg overflow-hidden';
+            
+            // Generate image based on category and product name
+            let imageAlt = '';
+            if (product.category === 'body-grooming') {
+                imageAlt = `Professional ${product.name.toLowerCase()} with modern design, metallic silver finish, ergonomic handle, and precision blades on white background`;
+            } else if (product.category === 'household') {
+                imageAlt = `High-quality ${product.name.toLowerCase()} with stainless steel finish, modern kitchen design, premium materials on clean white background`;
+            } else {
+                imageAlt = `Premium ${product.name.toLowerCase()} with colorful packaging, modern design, daily use products arranged neatly on white background`;
+            }
+
+            card.innerHTML = `
+                <div class="relative">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/97d7995f-2f12-4935-b19c-efc522677278.png" alt="${imageAlt}" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-sm">
+                        In Stock: ${product.stock}
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">${product.name}</h3>
+                    <p class="text-gray-600 mb-4">${product.description}</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-2xl font-bold text-blue-600">₹${product.price}</span>
+                        <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${getCategoryName(product.category)}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="addToCart(${product.id})" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                        </button>
+                        <button onclick="buyNow(${product.id})" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'body-grooming': 'Body Grooming',
+                'household': 'Household',
+                'daily-use': 'Daily Use'
+            };
+            return categories[category] || category;
+        }
+
+        function filterProducts(category) {
+            currentFilter = category;
+            loadProducts();
+            
+            // Update active filter button
+            document.querySelectorAll('button').forEach(btn => {
+                if (btn.textContent.includes(getCategoryName(category)) || (category === 'all' && btn.textContent === 'All')) {
+                    btn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition';
+                } else if (btn.onclick && btn.onclick.toString().includes('filterProducts')) {
+                    btn.className = 'px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition';
+                }
+            });
+        }
+
+        function searchProducts(query) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            const filteredProducts = products.filter(product =>
+                product.name.toLowerCase().includes(query.toLowerCase()) ||
+                product.description.toLowerCase().includes(query.toLowerCase()) ||
+                getCategoryName(product.category).toLowerCase().includes(query.toLowerCase())
+            );
+
+            filteredProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                grid.appendChild(productCard);
+            });
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCartUI();
+            showNotification('Product added to cart!');
+        }
+
+        function buyNow(productId) {
+            addToCart(productId);
+            toggleCart();
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cartCount');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+
+            updateCartItems();
+        }
+
+        function updateCartItems() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+                cartTotal.textContent = '0';
+                return;
+            }
+
+            cartItems.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const cartItem = document.createElement('div');
+                cartItem.className = 'flex items-center justify-between p-4 border rounded-lg';
+                cartItem.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d4e68b5b-6bee-47ef-baa3-f75a065e9013.png" alt="${item.name} product image for cart display" class="w-12 h-12 rounded">
+                        <div>
+                            <h4 class="font-medium">${item.name}</h4>
+                            <p class="text-sm text-gray-600">₹${item.price} each</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300">
+                            <i class="fas fa-minus text-xs"></i>
+                        </button>
+                        <span class="w-8 text-center">${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                        <button onclick="removeFromCart(${item.id})" class="ml-2 text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+
+            cartTotal.textContent = total;
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (!item) return;
+
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                removeFromCart(productId);
+            } else {
+                updateCartUI();
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+            showNotification('Product removed from cart');
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('show');
+            if (modal.classList.contains('show')) {
+                updateCartItems();
+            }
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+
+            toggleCart();
+            const checkoutModal = document.getElementById('checkoutModal');
+            checkoutModal.classList.add('show');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('checkoutSubtotal').textContent = subtotal;
+            document.getElementById('checkoutTotal').textContent = subtotal + 50; // Adding shipping
+        }
+
+        function closeCheckout() {
+            const modal = document.getElementById('checkoutModal');
+            modal.classList.remove('show');
+        }
+
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function placeOrder() {
+            if (!selectedPayment) {
+                showNotification('Please select a payment method', 'error');
+                return;
+            }
+
+            const form = document.getElementById('checkoutForm');
+            if (!form.checkValidity()) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Simulate order processing
+            showNotification('Order placed successfully! You will receive a confirmation email shortly.', 'success');
+            
+            // Clear cart and close modal
+            cart = [];
+            updateCartUI();
+            closeCheckout();
+            
+            // Reset form
+            form.reset();
+            selectedPayment = '';
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+
+        function toggleAdminPanel() {
+            const modal = document.getElementById('adminModal');
+            modal.classList.toggle('show');
+        }
+
+        function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+
+            const newProduct = {
+                id: products.length + 1,
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value
+            };
+
+            products.push(newProduct);
+            loadProducts();
+            form.reset();
+            toggleAdminPanel();
+            showNotification('Product added successfully!');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            
+            if (type === 'error') {
+                notification.className = 'notification bg-red-500 text-white p-4 rounded-lg shadow-lg';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+            } else {
+                notification.className = 'notification bg-green-500 text-white p-4 rounded-lg shadow-lg';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+            }
+        });
+
+        // Mobile menu toggle (if needed)
+        function toggleMobileMenu() {
+            // Implementation for mobile menu if needed
+        }
+    </script>
+</body>
+</html>
+
