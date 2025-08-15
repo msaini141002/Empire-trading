@@ -1,2 +1,0 @@
-# Empire-trading
-Empire Trading
